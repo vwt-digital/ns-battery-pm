@@ -5,7 +5,6 @@ def handle_battery_store(message):
     payload, _ = handle_message(message)
 
     for filtered, host, timestamp in filter_message(payload):
-        print(f"{host}:{timestamp} Filtered message: {filtered}")
         store = StoreDecide()
         store.handle_store(filtered, host, timestamp)
 

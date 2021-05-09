@@ -1,4 +1,4 @@
-from battery import Battery
+from battery_actual import BatteryActual
 from google.cloud import firestore
 
 
@@ -8,8 +8,10 @@ class StoreDecide:
 
     def handle_store(self, message, host, timestamp):
 
-        battery = Battery.from_dict(message).add_timestamp(timestamp).add_host(host)
-        chain, has_chain = self.retrieve_chain(battery)
+        battery = (
+            BatteryActual.from_dict(message).add_timestamp(timestamp).add_host(host)
+        )
+        chain, has_chain = self.__retrieve_chain(battery)
 
         if not has_chain and battery.actual < 100:
             chain = chain.document(str(timestamp))
@@ -19,7 +21,7 @@ class StoreDecide:
         if has_chain or (not has_chain and battery.actual < 100):
             chain.document(str(timestamp)).set(battery.to_dict())
 
-    def retrieve_chain(self, battery):
+    def __retrieve_chain(self, battery):
         battery_collection = (
             self.db.collection("battery_actual")
             .document("chains")
@@ -48,7 +50,6 @@ class StoreDecide:
                     .stream()
                 ][0]
             )
-            print(f"Last collected: {latest_collected.get().to_dict()}")
             if latest_collected.get().to_dict()["actual"] < 100:
                 return latest_chain, True
         except IndexError:

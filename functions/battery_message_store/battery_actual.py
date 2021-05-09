@@ -1,4 +1,4 @@
-class Battery(object):
+class BatteryActual(object):
     def __init__(self, actual: float, battery_hg_name: str = None, placed=None):
         self.actual = actual
         self.battery_hg_name = battery_hg_name
@@ -6,7 +6,7 @@ class Battery(object):
 
     @staticmethod
     def from_dict(source):
-        return Battery(
+        return BatteryActual(
             source["actual"],
             source.get("hostName", "hostless"),
             source.get("timestamp", "0000-00-00T00:00:00.000Z"),
