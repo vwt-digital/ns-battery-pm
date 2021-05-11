@@ -10,5 +10,5 @@ class ChainInstance(object):
     def from_dict(source):
         return ChainInstance(
             source["actual"],
-            source["timestamp"],
+            source["collected"],
         )
