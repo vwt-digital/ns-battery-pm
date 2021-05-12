@@ -54,7 +54,7 @@ class HandleCalculate:
         for instance in r_chain.collection("collected").stream():
             chain.add_chain_instance(ChainInstance.from_dict(instance.get().to_dict()))
 
-        return chain
+        return chain.sort_chain_on_placed()
 
     def store_calculated(self, chain: Chain, growth: float):
         self.db.collection("battery_actual").document("calculated").collection(

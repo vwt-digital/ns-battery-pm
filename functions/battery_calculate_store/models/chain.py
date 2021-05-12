@@ -21,7 +21,10 @@ class Chain(object):
             key=lambda x: datetime.strptime(x.placed, "%Y-%m-%dT%H:%M:%SZ"),
         )
 
+    def sort_chain_on_placed(self):
+        self.chain_instances = self.__sort(self.chain_instances)
+        return self
+
     def add_chain_instance(self, chain_instance: ChainInstance):
         self.chain_instances.append(chain_instance)
-        self.chain_instances = self.__sort(self.chain_instances)
         return self
