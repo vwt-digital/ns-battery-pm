@@ -58,6 +58,8 @@ class HandleCalculate:
 
     def store_calculated(self, chain: Chain, growth: float):
         self.db.collection("battery_actual").document("calculated").collection(
-            str(f"{chain.name}_{chain.collected}")
-        ).document({"growth": str(growth)})
+            str(chain.name)
+        ).document(str(chain.collected)).collection("calculated").document(
+            {"growth": str(growth)}
+        )
         return self
