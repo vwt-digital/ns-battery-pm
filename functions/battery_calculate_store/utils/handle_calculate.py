@@ -11,9 +11,9 @@ class HandleCalculate:
 
     @staticmethod
     def calculate_overall_growth(chain: Chain):
-        diff_list = [float]
+        diff_list = []
 
-        prev_instance: Type[ChainInstance] = ChainInstance
+        prev_instance = None
         instance: Type[ChainInstance]
 
         for instance in chain.chain_instances:
@@ -23,7 +23,7 @@ class HandleCalculate:
                 )
             prev_instance = instance
 
-        return sum(diff_list) / len(diff_list)
+        return float(sum(diff_list)) / float(len(diff_list))
 
     @staticmethod
     def calculate_fast_growth(chain: Chain):
@@ -52,12 +52,12 @@ class HandleCalculate:
         chain = Chain.from_dict({"collected": r_chain.id, "name": chain_name})
 
         for instance in r_chain.collection("collected").stream():
-            chain.add_chain_instance(ChainInstance.from_dict(instance.get().to_dict()))
+            chain.add_chain_instance(ChainInstance.from_dict(instance.to_dict()))
 
         return chain.sort_chain_on_placed()
 
     def store_calculated(self, chain: Chain, growth: float):
         self.db.collection("battery_actual").document("calculated").collection(
             str(chain.name)
-        ).document(str(chain.collected), {"growth": str(growth)})
+        ).document(str(chain.collected)).set({"growth": str(growth)})
         return self
