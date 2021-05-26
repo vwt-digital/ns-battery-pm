@@ -59,5 +59,11 @@ class HandleCalculate:
     def store_calculated(self, chain: Chain, growth: float):
         self.db.collection("battery_actual").document("calculated").collection(
             str(chain.name)
-        ).document(str(chain.collected)).set({"growth": str(growth)})
+        ).document(str(chain.collected)).set(
+            {
+                "growth": str(growth),
+                "chain_started": str(chain.collected),
+                "deprecated": False,
+            }
+        )
         return self
