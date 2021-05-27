@@ -13,12 +13,12 @@ class HandleDecision:
             .document("calculated")
             .collection(str(battery_name))
             .order_by("chain_started", direction=firestore.Query.ASCENDING)
-            .where(u"deprecated", u"==", False)
         )
 
     def _weekly_with_limit(
         self, average_growth_change_rate, last_stored, limit: int = 10
     ):
+        print(average_growth_change_rate, last_stored, limit)
         if (
             last_stored - (average_growth_change_rate * limit)
             > self.deciding_growth_limit
@@ -40,8 +40,10 @@ class HandleDecision:
 
         for doc in calculated_stored:
             dicted = doc.to_dict()
+            if dicted["deprecated"]:
+                continue
             if not (last_stored is None):
-                arr.append(float(last_stored - dicted["growth"]))
+                arr.append(float(float(last_stored) - float(dicted["growth"])))
             last_stored = float(dicted["growth"])
 
         return self._weekly_with_limit((sum(arr) / len(arr)), last_stored)
