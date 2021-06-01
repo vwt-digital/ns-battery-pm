@@ -7,8 +7,8 @@ def handle_battery_store(message):
 
     payload, _ = handle_message(message)
 
+    store = StoreDecide()
     for filtered, host, timestamp in filter_message(payload):
-        store = StoreDecide()
         battery, should_publish = store.handle_store(filtered, host, timestamp)
 
         if should_publish:
