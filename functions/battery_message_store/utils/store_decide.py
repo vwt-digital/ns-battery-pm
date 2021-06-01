@@ -21,6 +21,8 @@ class StoreDecide:
         if has_chain or (not has_chain and battery.actual < 100):
             chain.document(str(timestamp)).set(battery.to_dict())
 
+        return battery, (has_chain and battery.actual >= 100)
+
     def __retrieve_chain(self, battery):
         battery_collection = (
             self.db.collection("battery_actual")
