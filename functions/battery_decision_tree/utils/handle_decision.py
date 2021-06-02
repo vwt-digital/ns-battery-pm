@@ -46,4 +46,7 @@ class HandleDecision:
                 arr.append(float(float(last_stored) - float(dicted["growth"])))
             last_stored = float(dicted["growth"])
 
+        if not arr:
+            return Decision.UNDETERMINED.value
+
         return self._weekly_with_limit((sum(arr) / len(arr)), last_stored)
