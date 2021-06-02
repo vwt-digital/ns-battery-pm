@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from google.cloud import firestore
 from models.enum import Decision
 
@@ -5,7 +7,7 @@ from models.enum import Decision
 class HandleDecision:
     def __init__(self):
         self.db = firestore.Client()
-        self.deciding_growth_limit = 0.088
+        self.deciding_growth_limit = 0.005
 
     def _retrieve_calculated(self, battery_name: str):
         return (
@@ -32,6 +34,13 @@ class HandleDecision:
             ):
                 return Decision.UNSAFE.value.format(weeks=x + 1)
         return Decision.UNDETERMINED.value
+
+    def store(self, battery_name, decision):
+        self.db.collection("battery_actual").document("decision").collection(
+            str(battery_name)
+        ).document(str(datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))).set(
+            {"decision": str(decision)}
+        )
 
     def decide(self, battery_name: str) -> object:
         calculated_stored = self._retrieve_calculated(battery_name).stream()
