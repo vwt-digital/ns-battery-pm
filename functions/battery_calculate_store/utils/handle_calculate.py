@@ -52,6 +52,18 @@ class HandleCalculate:
         return NotImplemented
 
     def remove_chain(self, chain: Chain):
+        docs = (
+            self.db.collection("battery_actual")
+            .document("chains")
+            .collection(chain.name)
+            .document(chain.collected)
+            .collection("collected")
+            .stream()
+        )
+
+        for doc in docs:
+            doc.reference.delete()
+
         self.db.collection("battery_actual").document("chains").collection(
             chain.name
         ).document(chain.collected).delete()
