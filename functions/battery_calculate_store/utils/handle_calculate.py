@@ -43,6 +43,19 @@ class HandleCalculate:
     def calculate_drip_growth(chain: Chain):
         return NotImplemented
 
+    @staticmethod
+    def should_store(chain: Chain):
+        return NotImplemented
+
+    @staticmethod
+    def prob_is_replaced(chain: Chain):
+        return NotImplemented
+
+    def remove_chain(self, chain: Chain):
+        self.db.collection("battery_actual").document("chains").collection(
+            chain.name
+        ).document(chain.collected).delete()
+
     def create_chain(self, chain_name: str) -> Chain:
         battery_collection = (
             self.db.collection("battery_actual")
@@ -76,4 +89,5 @@ class HandleCalculate:
                 "deprecated": False,
             }
         )
+        self.remove_chain(chain)
         return self
