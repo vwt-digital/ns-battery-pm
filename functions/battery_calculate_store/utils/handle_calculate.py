@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Type
 
 from google.cloud import firestore
@@ -11,6 +12,10 @@ class HandleCalculate:
 
     @staticmethod
     def calculate_overall_growth(chain: Chain):
+        """
+        Calculate overall growth. Take chain difference and see the difference in percentage between one minute
+        :param chain:
+        """
         diff_list = []
 
         prev_instance = None
@@ -18,9 +23,14 @@ class HandleCalculate:
 
         for instance in chain.chain_instances:
             if prev_instance and prev_instance.actual <= instance.actual:
-                diff_list.append(
-                    (instance.actual - prev_instance.actual) / prev_instance.actual
-                )
+                between_dates_s = (
+                    datetime.strptime(instance.placed, "%Y-%m-%dT%H:%M:%SZ")
+                    - datetime.strptime(prev_instance.placed, "%Y-%m-%dT%H:%M:%SZ")
+                ).total_seconds()
+                r_difference = (
+                    instance.actual - prev_instance.actual
+                ) / prev_instance.actual
+                diff_list.append((r_difference / between_dates_s) * 60)
             prev_instance = instance
 
         return float(sum(diff_list)) / float(len(diff_list))
@@ -32,6 +42,31 @@ class HandleCalculate:
     @staticmethod
     def calculate_drip_growth(chain: Chain):
         return NotImplemented
+
+    @staticmethod
+    def should_store(chain: Chain):
+        return NotImplemented
+
+    @staticmethod
+    def prob_is_replaced(chain: Chain):
+        return NotImplemented
+
+    def remove_chain(self, chain: Chain):
+        docs = (
+            self.db.collection("battery_actual")
+            .document("chains")
+            .collection(chain.name)
+            .document(chain.collected)
+            .collection("collected")
+            .stream()
+        )
+
+        for doc in docs:
+            doc.reference.delete()
+
+        self.db.collection("battery_actual").document("chains").collection(
+            chain.name
+        ).document(chain.collected).delete()
 
     def create_chain(self, chain_name: str) -> Chain:
         battery_collection = (
@@ -59,5 +94,12 @@ class HandleCalculate:
     def store_calculated(self, chain: Chain, growth: float):
         self.db.collection("battery_actual").document("calculated").collection(
             str(chain.name)
-        ).document(str(chain.collected)).set({"growth": str(growth)})
+        ).document(str(chain.collected)).set(
+            {
+                "growth": str(growth),
+                "chain_started": str(chain.collected),
+                "deprecated": False,
+            }
+        )
+        self.remove_chain(chain)
         return self
