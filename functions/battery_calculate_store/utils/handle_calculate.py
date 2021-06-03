@@ -33,6 +33,9 @@ class HandleCalculate:
                 diff_list.append((r_difference / between_dates_s) * 60)
             prev_instance = instance
 
+        if not diff_list:
+            return None
+
         return float(sum(diff_list)) / float(len(diff_list))
 
     @staticmethod
@@ -45,7 +48,7 @@ class HandleCalculate:
 
     @staticmethod
     def should_store(chain: Chain):
-        return NotImplemented
+        return len(chain.chain_instances) > 15 and chain.get_lowest() < 50
 
     @staticmethod
     def prob_is_replaced(chain: Chain):
@@ -92,14 +95,15 @@ class HandleCalculate:
         return chain.sort_chain_on_placed()
 
     def store_calculated(self, chain: Chain, growth: float):
-        self.db.collection("battery_actual").document("calculated").collection(
-            str(chain.name)
-        ).document(str(chain.collected)).set(
-            {
-                "growth": str(growth),
-                "chain_started": str(chain.collected),
-                "deprecated": False,
-            }
-        )
+        if self.should_store(chain) and not (growth is None):
+            self.db.collection("battery_actual").document("calculated").collection(
+                str(chain.name)
+            ).document(str(chain.collected)).set(
+                {
+                    "growth": str(growth),
+                    "chain_started": str(chain.collected),
+                    "deprecated": False,
+                }
+            )
         self.remove_chain(chain)
         return self
