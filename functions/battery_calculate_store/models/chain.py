@@ -21,6 +21,9 @@ class Chain(object):
             key=lambda x: datetime.strptime(x.placed, "%Y-%m-%dT%H:%M:%SZ"),
         )
 
+    def get_lowest(self):
+        return min(self.chain_instances, key=lambda x: x.actual)
+
     def sort_chain_on_placed(self):
         self.chain_instances = self.__sort(self.chain_instances)
         return self

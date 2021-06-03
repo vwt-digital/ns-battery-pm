@@ -7,7 +7,7 @@ from models.enum import Decision
 class HandleDecision:
     def __init__(self):
         self.db = firestore.Client()
-        self.deciding_growth_limit = 0.005
+        self.deciding_growth_limit = 0.001
 
     def _retrieve_calculated(self, battery_name: str):
         return (
