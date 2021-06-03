@@ -33,6 +33,9 @@ class HandleCalculate:
                 diff_list.append((r_difference / between_dates_s) * 60)
             prev_instance = instance
 
+        if not diff_list:
+            return None
+
         return float(sum(diff_list)) / float(len(diff_list))
 
     @staticmethod
@@ -92,7 +95,7 @@ class HandleCalculate:
         return chain.sort_chain_on_placed()
 
     def store_calculated(self, chain: Chain, growth: float):
-        if self.should_store(chain):
+        if self.should_store(chain) and not (growth is None):
             self.db.collection("battery_actual").document("calculated").collection(
                 str(chain.name)
             ).document(str(chain.collected)).set(
