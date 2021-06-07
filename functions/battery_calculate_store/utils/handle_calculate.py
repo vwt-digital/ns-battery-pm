@@ -105,5 +105,5 @@ class HandleCalculate:
                     "deprecated": False,
                 }
             )
-        self.remove_chain(chain)
+        # self.remove_chain(chain)
         return self
