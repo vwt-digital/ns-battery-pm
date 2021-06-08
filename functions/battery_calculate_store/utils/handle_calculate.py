@@ -48,7 +48,7 @@ class HandleCalculate:
 
     @staticmethod
     def should_store(chain: Chain):
-        return len(chain.chain_instances) > 15 and chain.get_lowest() < 50
+        return len(chain.chain_instances) > 15 and chain.get_lowest().actual < 50
 
     @staticmethod
     def prob_is_replaced(chain: Chain):
