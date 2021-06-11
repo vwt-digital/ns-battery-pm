@@ -39,6 +39,10 @@ class HandleCalculate:
         return float(sum(diff_list)) / float(len(diff_list))
 
     @staticmethod
+    def calculate_decline(chain: Chain):
+        return NotImplemented
+
+    @staticmethod
     def calculate_fast_growth(chain: Chain):
         return NotImplemented
 
@@ -50,9 +54,14 @@ class HandleCalculate:
     def should_store(chain: Chain):
         return len(chain.chain_instances) > 15 and chain.get_lowest().actual < 50
 
-    @staticmethod
-    def prob_is_replaced(chain: Chain):
-        return NotImplemented
+    def deprecate_chain(self, chain: Chain):
+        chain = (
+            self.db.collection("battery_actual")
+            .document("chains")
+            .collection(chain.name)
+            .document(chain.collected)
+        )
+        chain.set({"deprecated": True})
 
     def remove_chain(self, chain: Chain):
         docs = (
@@ -105,5 +114,8 @@ class HandleCalculate:
                     "deprecated": False,
                 }
             )
-        # self.remove_chain(chain)
+            self.deprecate_chain(chain)
+            return self
+
+        self.remove_chain(chain)
         return self

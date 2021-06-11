@@ -15,7 +15,7 @@ class StoreDecide:
 
         if not has_chain and battery.actual < 100:
             chain = chain.document(str(timestamp))
-            chain.set({"chain_started": str(timestamp)})
+            chain.set({"chain_started": str(timestamp), "deprecated": False})
             chain = chain.collection("collected")
 
         if has_chain or (not has_chain and battery.actual < 100):

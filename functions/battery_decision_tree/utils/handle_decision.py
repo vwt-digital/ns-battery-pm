@@ -35,6 +35,20 @@ class HandleDecision:
                 return Decision.UNSAFE.value.format(weeks=x + 1)
         return Decision.UNDETERMINED.value
 
+    def _deprecate_calculated(self, battery_name, doc_id):
+        doc = (
+            self.db.collection("battery_actual")
+            .document("calculated")
+            .collection(str(battery_name))
+            .document(doc_id)
+        )
+        doc.set({"deprecated": True})
+
+    def _delete_calculated(self, battery_name, doc_id):
+        self.db.collection("battery_actual").document("calculated").collection(
+            str(battery_name)
+        ).document(doc_id).delete()
+
     def store(self, battery_name, decision):
         self.db.collection("battery_actual").document("decision").collection(
             str(battery_name)
@@ -43,16 +57,26 @@ class HandleDecision:
         )
 
     def decide(self, battery_name: str) -> object:
-        calculated_stored = self._retrieve_calculated(battery_name).stream()
+        calculated_stored = self._retrieve_calculated(battery_name)
         arr = []
         last_stored = None
 
-        for doc in calculated_stored:
+        for doc in calculated_stored.stream():
             dicted = doc.to_dict()
             if dicted["deprecated"]:
+                if (
+                    datetime.strptime(dicted["chain_started"], "%Y-%m-%dT%H:%M:%SZ")
+                    - datetime.now()
+                ).days >= 15:
+                    self._delete_calculated(battery_name, doc.id)
                 continue
             if not (last_stored is None):
-                arr.append(float(float(last_stored) - float(dicted["growth"])))
+                cal = float(float(last_stored) - float(dicted["growth"]))
+                print(cal)
+                if cal < 0:
+                    self._deprecate_calculated(battery_name, doc.id)
+                    continue
+                arr.append(cal)
             last_stored = float(dicted["growth"])
 
         if not arr:
