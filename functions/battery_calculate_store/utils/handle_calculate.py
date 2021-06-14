@@ -1,6 +1,7 @@
-from datetime import datetime
 from typing import Type
 
+from calculate.declination_calculate import CalculateDeclination
+from calculate.growth_calculate import CalculateGrowth
 from google.cloud import firestore
 from models.chain import Chain
 from models.chain_instance import ChainInstance
@@ -11,44 +12,28 @@ class HandleCalculate:
         self.db = firestore.Client()
 
     @staticmethod
-    def calculate_overall_growth(chain: Chain):
-        """
-        Calculate overall growth. Take chain difference and see the difference in percentage between one minute
-        :param chain:
-        """
-        diff_list = []
+    def calculate_all(chain: Chain):
+        growth = None
+        declination = None
 
         prev_instance = None
         instance: Type[ChainInstance]
 
         for instance in chain.chain_instances:
-            if prev_instance and prev_instance.actual <= instance.actual:
-                between_dates_s = (
-                    datetime.strptime(instance.placed, "%Y-%m-%dT%H:%M:%SZ")
-                    - datetime.strptime(prev_instance.placed, "%Y-%m-%dT%H:%M:%SZ")
-                ).total_seconds()
-                r_difference = (
-                    instance.actual - prev_instance.actual
-                ) / prev_instance.actual
-                diff_list.append((r_difference / between_dates_s) * 60)
+            if prev_instance:
+
+                if prev_instance.actual <= instance.actual:
+                    growth = CalculateGrowth()
+                    growth.add(instance, prev_instance)
+
+                if prev_instance.actual > instance.actual:
+                    declination = CalculateDeclination()
+                    declination.add(instance, prev_instance)
+
             prev_instance = instance
 
-        if not diff_list:
-            return None
-
-        return float(sum(diff_list)) / float(len(diff_list))
-
-    @staticmethod
-    def calculate_decline(chain: Chain):
-        return NotImplemented
-
-    @staticmethod
-    def calculate_fast_growth(chain: Chain):
-        return NotImplemented
-
-    @staticmethod
-    def calculate_drip_growth(chain: Chain):
-        return NotImplemented
+        if growth:
+            return growth.calculated(), declination.calculated()
 
     @staticmethod
     def should_store(chain: Chain):
@@ -103,13 +88,14 @@ class HandleCalculate:
 
         return chain.sort_chain_on_placed()
 
-    def store_calculated(self, chain: Chain, growth: float):
-        if self.should_store(chain) and not (growth is None):
+    def store_calculated(self, chain: Chain, *args):
+        if self.should_store(chain) and not (args is None):
             self.db.collection("battery_actual").document("calculated").collection(
                 str(chain.name)
             ).document(str(chain.collected)).set(
                 {
-                    "growth": str(growth),
+                    "growth": str(args[0]),
+                    "declination": str(args[1]),
                     "chain_started": str(chain.collected),
                     "deprecated": False,
                 }

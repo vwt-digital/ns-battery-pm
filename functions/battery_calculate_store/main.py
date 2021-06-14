@@ -9,9 +9,7 @@ def handle_calculate_store(message):
     handle_calculate = HandleCalculate()
 
     chain = handle_calculate.create_chain(payload["chain_name"])
-    handle_calculate.store_calculated(
-        chain, handle_calculate.calculate_overall_growth(chain)
-    )
+    handle_calculate.store_calculated(chain, handle_calculate.calculate_all(chain))
     publish(chain.name, publisher)
 
     # Returning any 2xx status indicates successful receipt of the message.
