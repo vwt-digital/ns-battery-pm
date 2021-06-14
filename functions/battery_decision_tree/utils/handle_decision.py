@@ -72,7 +72,6 @@ class HandleDecision:
                 continue
             if not (last_stored is None):
                 cal = float(float(last_stored) - float(dicted["growth"]))
-                print(cal)
                 if cal < 0:
                     self._deprecate_calculated(battery_name, doc.id)
                     continue

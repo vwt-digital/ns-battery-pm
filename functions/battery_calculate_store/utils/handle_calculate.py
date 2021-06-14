@@ -1,5 +1,3 @@
-from typing import Type
-
 from calculate.declination_calculate import CalculateDeclination
 from calculate.growth_calculate import CalculateGrowth
 from google.cloud import firestore
@@ -13,27 +11,23 @@ class HandleCalculate:
 
     @staticmethod
     def calculate_all(chain: Chain):
-        growth = None
-        declination = None
+        growth = CalculateGrowth()
+        declination = CalculateDeclination()
 
         prev_instance = None
-        instance: Type[ChainInstance]
 
         for instance in chain.chain_instances:
             if prev_instance:
 
                 if prev_instance.actual <= instance.actual:
-                    growth = CalculateGrowth()
                     growth.add(instance, prev_instance)
 
                 if prev_instance.actual > instance.actual:
-                    declination = CalculateDeclination()
                     declination.add(instance, prev_instance)
 
             prev_instance = instance
 
-        if growth:
-            return growth.calculated(), declination.calculated()
+        return growth.calculated(), declination.calculated()
 
     @staticmethod
     def should_store(chain: Chain):
@@ -88,20 +82,16 @@ class HandleCalculate:
 
         return chain.sort_chain_on_placed()
 
-    def store_calculated(self, chain: Chain, *args):
-        if self.should_store(chain) and not (args is None):
-            self.db.collection("battery_actual").document("calculated").collection(
-                str(chain.name)
-            ).document(str(chain.collected)).set(
-                {
-                    "growth": str(args[0]),
-                    "declination": str(args[1]),
-                    "chain_started": str(chain.collected),
-                    "deprecated": False,
-                }
-            )
-            self.deprecate_chain(chain)
-            return self
-
-        self.remove_chain(chain)
+    def store_calculated(self, chain: Chain, growth, declination):
+        self.db.collection("battery_actual").document("calculated").collection(
+            str(chain.name)
+        ).document(str(chain.collected)).set(
+            {
+                "growth": str(growth),
+                "declination": str(declination),
+                "chain_started": str(chain.collected),
+                "deprecated": False,
+            }
+        )
+        self.deprecate_chain(chain)
         return self

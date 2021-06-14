@@ -9,7 +9,19 @@ def handle_calculate_store(message):
     handle_calculate = HandleCalculate()
 
     chain = handle_calculate.create_chain(payload["chain_name"])
-    handle_calculate.store_calculated(chain, handle_calculate.calculate_all(chain))
+
+    if not handle_calculate.should_store(chain):
+        handle_calculate.remove_chain(chain)
+        return "OK", 204
+
+    growth, declination = handle_calculate.calculate_all(chain)
+
+    if not (growth is None or declination is None):
+        handle_calculate.remove_chain(chain)
+        return "OK", 204
+
+    handle_calculate.store_calculated(chain, growth, declination)
+
     publish(chain.name, publisher)
 
     # Returning any 2xx status indicates successful receipt of the message.
