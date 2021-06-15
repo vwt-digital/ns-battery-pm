@@ -15,6 +15,8 @@ class ProjectManager:
                 "functions",
                 "call",
                 config.FUNCTION_TO_MESSAGE,
+                "--region",
+                config.REGION,
                 "--data",
                 message,
             ]
