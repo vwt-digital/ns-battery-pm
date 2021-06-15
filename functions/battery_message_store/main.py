@@ -3,6 +3,11 @@ from utils import StoreDecide, filter_message, handle_message, publish
 
 
 def handle_battery_store(message):
+    """
+
+    :param message:
+    :return:
+    """
     publisher = pubsub_v1.PublisherClient()
 
     payload, _ = handle_message(message)
