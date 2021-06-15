@@ -6,11 +6,8 @@ from datetime import datetime
 
 class MessageBuilder:
     def __init__(self):
-        pass
-
-    @staticmethod
-    def expr(x, a, b, c):
-        return (a * x ** 2) + (b * x) + c
+        self.valid = [99, 90, 85, 80, 70, 60, 49, 55, 65, 75, 85, 95, 97, 98, 99, 100]
+        self.invalid = [99, 34, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 97, 100]
 
     def __build_valid_battery(self, collected, index):
         return {
@@ -19,7 +16,7 @@ class MessageBuilder:
             "performanceData": [
                 {
                     "var_name": "battery_capacity",
-                    "actual": round(self.expr(x=index, a=0.79687, b=0, c=49), 2),
+                    "actual": self.valid[index],
                 }
             ],
         }
@@ -31,7 +28,7 @@ class MessageBuilder:
             "performanceData": [
                 {
                     "var_name": "battery_capacity",
-                    "actual": round(self.expr(x=index, a=1.1, b=1.2, c=20), 2),
+                    "actual": self.invalid[index],
                 }
             ],
         }
@@ -46,7 +43,7 @@ class MessageBuilder:
         }
 
     def build_message(self):
-        for i in range(-8, 9):
+        for i in range(16):
             time.sleep(2)
 
             collected = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
