@@ -12,14 +12,12 @@ def handle_calculate_store(message):
 
     if not handle_calculate.should_store(chain):
         handle_calculate.remove_chain(chain)
-        print("Should not store")
         return "OK", 204
 
     growth, declination = handle_calculate.calculate_all(chain)
 
-    if not (growth is None or declination is None):
+    if growth is None or declination is None:
         handle_calculate.remove_chain(chain)
-        print("Growth or declination not calculated")
         return "OK", 204
 
     handle_calculate.store_calculated(chain, growth, declination)

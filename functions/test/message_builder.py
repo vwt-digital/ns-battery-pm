@@ -19,7 +19,7 @@ class MessageBuilder:
             "performanceData": [
                 {
                     "var_name": "battery_capacity",
-                    "actual": self.expr(x=index, a=0.8, b=0, c=20),
+                    "actual": round(self.expr(x=index, a=0.79687, b=0, c=49), 2),
                 }
             ],
         }
@@ -31,7 +31,7 @@ class MessageBuilder:
             "performanceData": [
                 {
                     "var_name": "battery_capacity",
-                    "actual": self.expr(x=index, a=0.51, b=0, c=49),
+                    "actual": round(self.expr(x=index, a=1.1, b=1.2, c=20), 2),
                 }
             ],
         }
@@ -46,8 +46,8 @@ class MessageBuilder:
         }
 
     def build_message(self):
-        for i in range(-10, 11):
-            time.sleep(1)
+        for i in range(-8, 9):
+            time.sleep(2)
 
             collected = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 

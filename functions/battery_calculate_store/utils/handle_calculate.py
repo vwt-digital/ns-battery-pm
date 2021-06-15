@@ -31,7 +31,7 @@ class HandleCalculate:
 
     @staticmethod
     def should_store(chain: Chain):
-        return len(chain.chain_instances) > 15 and chain.get_lowest().actual < 50
+        return len(chain.chain_instances) >= 12 and chain.get_lowest().actual < 50
 
     def deprecate_chain(self, chain: Chain):
         chain = (
