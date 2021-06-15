@@ -1,7 +1,7 @@
 import unittest
 
-from message_builder import MessageBuilder
-from project_manager import ProjectManager
+from .message_builder import MessageBuilder
+from .project_manager import ProjectManager
 
 
 class TestBatteryPm(unittest.TestCase):
@@ -12,6 +12,3 @@ class TestBatteryPm(unittest.TestCase):
     def test_test(self):
         self.assertEqual(1, 1)
 
-
-if __name__ == "__main__":
-    unittest.main()
