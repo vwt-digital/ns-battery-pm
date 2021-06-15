@@ -1,7 +1,7 @@
 import unittest
 
-from .message_builder import MessageBuilder
-from .project_manager import ProjectManager
+from message_builder import MessageBuilder
+from project_manager import ProjectManager
 
 
 class TestBatteryPm(unittest.TestCase):
