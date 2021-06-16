@@ -4,7 +4,7 @@ from models.chain_instance import ChainInstance
 
 class CalculateGrowth(Calculate):
     def __init__(self):
-        super().__init__()
+        super(CalculateGrowth, self).__init__()
 
     def add(self, instance: ChainInstance, prev_instance: ChainInstance):
         return super(CalculateGrowth, self).add(instance, prev_instance)

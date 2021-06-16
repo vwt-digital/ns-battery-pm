@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from google.cloud import firestore
-from models.enum import Decision
+from models.enum import Advice
 
 
 class HandleDecision:
@@ -20,20 +20,19 @@ class HandleDecision:
     def __weekly_with_limit(
         self, average_growth_change_rate, last_stored, limit: int = 10
     ):
-        print(average_growth_change_rate, last_stored, limit)
         if (
             last_stored - (average_growth_change_rate * limit)
             > self.deciding_growth_limit
         ):
-            return Decision.SAFE.value.format(weeks=limit)
+            return Advice.SAFE.value.format(weeks=limit)
 
         for x in range(limit):
             if (
                 last_stored - (average_growth_change_rate * (x + 1))
                 <= self.deciding_growth_limit
             ):
-                return Decision.UNSAFE.value.format(weeks=x + 1)
-        return Decision.UNDETERMINED.value
+                return Advice.UNSAFE.value.format(weeks=x + 1)
+        return Advice.UNDETERMINED.value
 
     def __deprecate_calculated(self, battery_name, doc_id):
         doc = (
@@ -79,6 +78,6 @@ class HandleDecision:
             last_stored = float(dicted["growth"])
 
         if not arr:
-            return Decision.UNDETERMINED.value
+            return Advice.UNDETERMINED.value
 
         return self.__weekly_with_limit((sum(arr) / len(arr)), last_stored)
