@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from decision.decision import Decision
+from decision.var_actual_decision import VarActualDecision
 from google.cloud import firestore
 from models.enum import Advice
 
@@ -16,23 +18,6 @@ class HandleDecision:
             .collection(str(battery_name))
             .order_by("chain_started", direction=firestore.Query.ASCENDING)
         )
-
-    def __weekly_with_limit(
-        self, average_growth_change_rate, last_stored, limit: int = 10
-    ):
-        if (
-            last_stored - (average_growth_change_rate * limit)
-            > self.deciding_growth_limit
-        ):
-            return Advice.SAFE.value.format(weeks=limit)
-
-        for x in range(limit):
-            if (
-                last_stored - (average_growth_change_rate * (x + 1))
-                <= self.deciding_growth_limit
-            ):
-                return Advice.UNSAFE.value.format(weeks=x + 1)
-        return Advice.UNDETERMINED.value
 
     def __deprecate_calculated(self, battery_name, doc_id):
         doc = (
@@ -80,4 +65,8 @@ class HandleDecision:
         if not arr:
             return Advice.UNDETERMINED.value
 
-        return self.__weekly_with_limit((sum(arr) / len(arr)), last_stored)
+        decision: Decision = VarActualDecision(battery_name)
+
+        return decision.generate_decision(
+            calc=(sum(arr) / len(arr)), current=last_stored
+        )
