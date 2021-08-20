@@ -52,9 +52,7 @@ class HandleCalculate:
         """
         chain = (
             self.db.collection("battery_actual")
-                .document("chains")
-                .collection(chain.name)
-                .document(chain.collected)
+            .document("chains").collection(chain.name).document(chain.collected)
         )
         chain.set({"deprecated": True})
 
@@ -92,8 +90,7 @@ class HandleCalculate:
             [
                 x.id
                 for x in battery_collection.order_by(
-                "chain_started", direction=firestore.Query.DESCENDING
-            )
+                "chain_started", direction=firestore.Query.DESCENDING)
                 .limit(1)
                 .stream()
             ][0]

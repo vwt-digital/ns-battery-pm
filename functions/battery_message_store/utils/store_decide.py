@@ -45,8 +45,7 @@ class StoreDecide:
                 [
                     x.id
                     for x in battery_collection.order_by(
-                    "chain_started", direction=firestore.Query.DESCENDING
-                )
+                    "chain_started", direction=firestore.Query.DESCENDING)
                     .limit(1)
                     .stream()
                 ][0]
@@ -57,8 +56,7 @@ class StoreDecide:
                 [
                     x.id
                     for x in latest_chain.order_by(
-                    "collected", direction=firestore.Query.DESCENDING
-                )
+                    "collected", direction=firestore.Query.DESCENDING)
                     .limit(1)
                     .stream()
                 ][0]
