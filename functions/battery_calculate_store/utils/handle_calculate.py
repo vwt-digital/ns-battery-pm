@@ -90,9 +90,8 @@ class HandleCalculate:
             [
                 x.id
                 for x in battery_collection.order_by(
-                "chain_started", direction=firestore.Query.DESCENDING)
-                .limit(1)
-                .stream()
+                    "chain_started", direction=firestore.Query.DESCENDING)
+                .limit(1).stream()
             ][0]
         )
         chain = Chain.from_dict({"collected": r_chain.id, "name": chain_name})
