@@ -11,6 +11,10 @@ class HandleCalculate:
 
     @staticmethod
     def calculate_all(chain: Chain):
+        """
+        :param chain:
+        :return:
+        """
         growth = CalculateGrowth()
         declination = CalculateDeclination()
 
@@ -20,9 +24,11 @@ class HandleCalculate:
             if prev_instance:
 
                 if prev_instance.actual <= instance.actual:
+                    # Delta is positive relative to the previous instance's actual
                     growth.add(instance, prev_instance)
 
                 if prev_instance.actual > instance.actual:
+                    # Delta is negative relative to the previous instance's actual
                     declination.add(instance, prev_instance)
 
             prev_instance = instance
@@ -31,25 +37,38 @@ class HandleCalculate:
 
     @staticmethod
     def should_store(chain: Chain):
+        """
+            If the length of the chain instances is lower than 12, or when the lowest chain instance's actual is higher than 49,
+            it will not store. The amount of data will be insufficient to create a valid prediction.
+        :param chain:
+        :return:
+        """
+
         return len(chain.chain_instances) >= 12 and chain.get_lowest().actual < 50
 
     def deprecate_chain(self, chain: Chain):
+        """
+        :param chain:
+        """
         chain = (
             self.db.collection("battery_actual")
-            .document("chains")
-            .collection(chain.name)
-            .document(chain.collected)
+                .document("chains")
+                .collection(chain.name)
+                .document(chain.collected)
         )
         chain.set({"deprecated": True})
 
     def remove_chain(self, chain: Chain):
+        """
+        :param chain:
+        """
         docs = (
             self.db.collection("battery_actual")
-            .document("chains")
-            .collection(chain.name)
-            .document(chain.collected)
-            .collection("collected")
-            .stream()
+                .document("chains")
+                .collection(chain.name)
+                .document(chain.collected)
+                .collection("collected")
+                .stream()
         )
 
         for doc in docs:
@@ -60,17 +79,21 @@ class HandleCalculate:
         ).document(chain.collected).delete()
 
     def create_chain(self, chain_name: str) -> Chain:
+        """
+        :param chain_name:
+        :return:
+        """
         battery_collection = (
             self.db.collection("battery_actual")
-            .document("chains")
-            .collection(str(chain_name))
+                .document("chains")
+                .collection(str(chain_name))
         )
         r_chain = battery_collection.document(
             [
                 x.id
                 for x in battery_collection.order_by(
-                    "chain_started", direction=firestore.Query.DESCENDING
-                )
+                "chain_started", direction=firestore.Query.DESCENDING
+            )
                 .limit(1)
                 .stream()
             ][0]
@@ -83,6 +106,12 @@ class HandleCalculate:
         return chain.sort_chain_on_placed()
 
     def store_calculated(self, chain: Chain, growth, declination):
+        """
+        :param chain:
+        :param growth:
+        :param declination:
+        :return: HandleCalculate
+        """
         self.db.collection("battery_actual").document("calculated").collection(
             str(chain.name)
         ).document(str(chain.collected)).set(

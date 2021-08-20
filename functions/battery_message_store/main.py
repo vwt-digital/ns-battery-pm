@@ -13,10 +13,11 @@ def handle_battery_store(message):
     payload, _ = handle_message(message)
 
     store = StoreDecide()
+    # Filter based on a yield return, to speed up process as researched in 7.1
     for filtered, host, timestamp in filter_message(payload):
         battery, should_publish = store.handle_store(filtered, host, timestamp)
 
-        if should_publish:
+        if should_publish:  # (has_chain and battery.actual >= 100)
             publish(battery.battery_hg_name, publisher)
 
     # Returning any 2xx status indicates successful receipt of the message.

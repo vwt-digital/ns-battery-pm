@@ -1,5 +1,12 @@
 class BatteryActual(object):
+    # BatteryActual object, created for Firestore
     def __init__(self, actual: float, battery_hg_name: str = None, placed=None):
+        """
+
+        :param actual:
+        :param battery_hg_name:
+        :param placed:
+        """
         self.actual = actual
         self.battery_hg_name = battery_hg_name
         self.placed = placed
